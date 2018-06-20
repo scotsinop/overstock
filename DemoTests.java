@@ -34,11 +34,6 @@ import org.testng.annotations.*;
 public class DemoTests {
 
 	
-	Setup testData = new Setup();
-	String token = testData.testSetup().get("token").toString();
-	String baseUrl = testData.testSetup().get("baseUrl").toString();
-	String cartId = testData.testSetup().get("mfcart_devel").toString();
-	
 	@Test
 	public void testMakeSureGoogleIsUp(){
 		
@@ -69,6 +64,7 @@ public class DemoTests {
 			Pattern patternW = Pattern.compile("\"outcome\": \"W\"");
 			Matcher matcherW = patternW.matcher(response.body().prettyPrint());
 			
+			// Count Wins
 			int countW = 0;
 			while (matcherW.find())
 				countW++;
@@ -78,18 +74,18 @@ public class DemoTests {
 			Pattern patternL = Pattern.compile("\"outcome\": \"L\"");
 			Matcher matcherL = patternL.matcher(response.body().prettyPrint());
 			
+			// Count Loses
 			int countL = 0;
 			while (matcherL.find())
 				countL++;
 			
 			System.out.println("LOSES :: " + countL);
-			//System.out.println("Response :: putAnything = " + response.body().prettyPrint() );
-			
 		
+			// Convert int to string
 			String countWasString = new StringBuffer().append(countW).toString();
 			String countLasString = new StringBuffer().append(countL).toString();
 			
-			// This should catch if there is malformed json passed
+			// Verify
 			assertNotNull(response.body().jsonPath().get("data"));
 			assert countWasString.equals("5");
 			assert countLasString.equals("3");
@@ -103,7 +99,6 @@ public class DemoTests {
 			System.out.println("Delete");
 			Response response =
 			given()
-			//.body()
 			.when()
 			.delete( "http://httpbin.org/anything")
 			.then()
@@ -114,7 +109,6 @@ public class DemoTests {
 			Pattern patternOrig = Pattern.compile("\"origin\": \"192.5.106.1\"");
 			Matcher matcherOrig = patternOrig.matcher(response.body().prettyPrint());
 			
-		
 			Pattern patternDel = Pattern.compile("\"method\": \"DELETE\"");
 			Matcher matcherDel = patternDel.matcher(response.body().prettyPrint());
 			
@@ -124,7 +118,7 @@ public class DemoTests {
 			Pattern patternUrl = Pattern.compile("\"url\": \"http://httpbin.org/anything\"");
 			Matcher matcherUrl = patternUrl.matcher(response.body().prettyPrint());
 			
-			
+			// Verify
 			assert matcherOrig.find();
 			assert matcherDel.find();
 			assert matcherNull.find();
