@@ -1,48 +1,16 @@
 package com.test.api.discovery.overstock;
 
 import org.testng.annotations.Test;
-
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.test.api.discovery.datagenerator.FontStylesDataGenerator;
-import com.test.api.discovery.helpers.*;
-import com.test.api.discovery.jsonbuilder.FontStyleJsonBuilder;
-import com.test.api.discovery.services.BackboneCartServices;
-
-import io.restassured.*;
 import io.restassured.response.Response;
-import io.restassured.response.ValidatableResponse;
 import static io.restassured.RestAssured.given;
-import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNotNull;
-import static org.testng.Assert.assertTrue;
-
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.codehaus.groovy.control.messages.Message;
-import org.testng.annotations.*;
 
 
 public class DemoTests {
 
-	
-	@Test
-	public void testMakeSureGoogleIsUp(){
-		
-		given()
-		.when()
-		.get("http://www.google.com")
-		.then().statusCode(200);
-		
-	}
 	
 	@Test
 	public void putAnything() throws IOException{
