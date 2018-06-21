@@ -5,8 +5,13 @@ import io.restassured.response.Response;
 import static io.restassured.RestAssured.given;
 import static org.testng.Assert.assertNotNull;
 import java.io.IOException;
+import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.jsoup.*;     
+import org.jsoup.nodes.*;
+import  org.jsoup.parser.*;
 
 
 public class DemoTests {
@@ -53,8 +58,14 @@ public class DemoTests {
 			String countWasString = new StringBuffer().append(countW).toString();
 			String countLasString = new StringBuffer().append(countL).toString();
 			
+			
+			String data = response.body().jsonPath().get("data");
+			System.out.println("DATA: " + data);
+			boolean nameExists = data.matches("(?i).*Tom Brady.*");
+			System.out.println("NameExists: " + nameExists);
+			
 			// Verify
-			assertNotNull(response.body().jsonPath().get("data"));
+			assert (nameExists);
 			assert countWasString.equals("5");
 			assert countLasString.equals("3");
 			
@@ -74,7 +85,7 @@ public class DemoTests {
 			.extract()
 			.response();
 	
-			Pattern patternOrig = Pattern.compile("\"origin\": \"192.5.106.1\"");
+			Pattern patternOrig = Pattern.compile("\"origin\": \"75.68.48.182\"");
 			Matcher matcherOrig = patternOrig.matcher(response.body().prettyPrint());
 			
 			Pattern patternDel = Pattern.compile("\"method\": \"DELETE\"");
@@ -95,6 +106,99 @@ public class DemoTests {
 			
 	}
 
+	@Test
+	public void getReviewsByISBN() throws IOException{
+			
+			String key = "Xz3J1TuhfmgVlWUY71C0g";
+			BigInteger isbn = new BigInteger("9780385508452");
+			
+			System.out.println("Get Reviews");
+			Response response =
+			given()
+			.when()
+			.get( "https://www.goodreads.com/book/isbn/"+ isbn + "?format=xml&key=" + key)
+			.then()
+			.statusCode(200)
+			.extract()
+			.response();
 	
+
+			String resp = response.body().prettyPrint();
+			Document doc = Jsoup.parse(resp, "", Parser.xmlParser());
+			String authName = doc.select("author").select("name").text();
+			System.out.println("Display Author Object :: " + authName);
+			String isbnNum = doc.select("book").select("isbn13").text();
+			System.out.println("Display ISBN :: " + isbnNum);
+			String pubYear = doc.select("book").select("publication_year").text();
+			System.out.println("Display Publication Year :: " + pubYear);
+			
+					
+			assert authName.contains("Sarah Helm");
+			assert isbnNum.contains("9780385508452");
+			assert pubYear.contains("2006");
+			
+			
+	}
+	
+	 
+		@Test
+		public void getAuthPaginate() throws IOException{
+				
+				String key = "Xz3J1TuhfmgVlWUY71C0g";
+				BigInteger id = new BigInteger("68");
+				int page1 = 1;
+				int page2 = 2;
+				
+				System.out.println("Get ID Page 1");
+				Response response1 =
+				given()
+				.when()
+				.get( "https://www.goodreads.com/author/list.xml" + "?id=" + id + "&page=" + page1 + "&key=" + key)
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+
+				System.out.println("Page1 :: " + response1.body().prettyPrint());
+				String resp1 = response1.body().prettyPrint();
+				Document doc1 = Jsoup.parse(resp1, "", Parser.xmlParser());
+				String isbnNum1 = doc1.select("book").select("isbn13").text();
+				
+				
+				System.out.println("Get ID Page 2");
+				Response response2 =
+				given()
+				.when()
+				.get( "https://www.goodreads.com/author/list.xml" + "?id=" + id + "&page=" + page2 + "&key=" + key)
+				.then()
+				.statusCode(200)
+				.extract()
+				.response();
+		
+
+				System.out.println("Page :: " + response2.body().prettyPrint());
+				String resp2 = response2.body().prettyPrint();
+				Document doc2 = Jsoup.parse(resp2, "", Parser.xmlParser());
+				String isbnNum2 = doc2.select("book").select("isbn13").text();
+				System.out.println("Display ISBN1 :: " + isbnNum1);
+				System.out.println("Display ISBN2 :: " + isbnNum2);
+
+				String[] array1 = isbnNum1.split(" ");
+				int array1Len = array1.length;
+				System.out.println("Array1 length :: " + array1Len);
+				String array1Last = array1[array1Len -1];
+				System.out.println("Array1 last :: " + array1Last);
+				
+				String[] array2 = isbnNum2.split(" ");
+				String array2First = array2[0];
+				System.out.println("Array2 first :: " + array2First);
+				
+
+				assert !(array2First.equals(array1Last));
+				
+				
+		}
+		
 
 }
